@@ -1,6 +1,6 @@
 function Mine(tr,td,mineNum){
 	this.tr=tr;	//行数
-	this.td=td;	//列数 
+	this.td=td;	//列数
 	this.mineNum=mineNum;	//雷的数量
 
 	this.squares=[];	//存储所有方块的信息，它是一个二维数组，按行与列的顺序排放。存取都使用行列的形式
@@ -39,14 +39,14 @@ Mine.prototype.init=function(){
 				this.squares[i][j]={type:'number',x:j,y:i,value:0};
 			}
 		}
-		
+
 
 		/* {
 			type:'mine',
 			x:0
 			y:0,
 		}
-		
+
 		{
 			type:'number',
 			x:0,
@@ -82,11 +82,11 @@ Mine.prototype.createDom=function(){
 			//domTd.innerHTML=0;
 
 			domTd.pos=[i,j];	//把格子对应的行与列存到格子身上，为了下面通过这个值去数组里取到对应的数据
-			domTd.onmousedown=function(){
-				This.play(event,this);	//This指的实例对象，this指的点击的那个td
+			table.onmousedown=function(e){
+				This.play(e,e.target);	//This指的实例对象，this指的点击的那个td
 			};
 
-			this.tds[i][j]=domTd;	//这里是把所有创建的td添加到数组当中 
+			this.tds[i][j]=domTd;	//这里是把所有创建的td添加到数组当中
 
 			/* if(this.squares[i][j].type=='mine'){
 				domTd.className='mine'
@@ -110,7 +110,7 @@ Mine.prototype.getAround=function(square){
 	var y=square.y;
 	var result=[];	//把找到的格子的坐标返回出去（二维数组）
 
-	/* 
+	/*
 		x-1,y-1		x,y-1	x+1,y-1
 		x-1,y		x,y		x+1,y
 		x-1,y+1		x,y+1	x+1,y+1
@@ -161,7 +161,10 @@ Mine.prototype.updateNum=function(){
 
 	//console.log(this.squares);
 }
-
+Mine.prototype.removeEvent=function(){
+	let table=document.getElementsByTagName('table')[0];
+	table.onmousedown=null;
+}
 Mine.prototype.play=function(ev,obj){
 	var This=this;
 	if(ev.which==1 && obj.className!='flag'){	//后面的条件是为了限制用户标完小红旗后就不能够左键点击
@@ -178,7 +181,7 @@ Mine.prototype.play=function(ev,obj){
 			obj.className=cl[curSquare.value];
 
 			if(curSquare.value==0){
-				/* 
+				/*
 					用户点到了数字0
 						1、显示自己
 						2、找四周
@@ -190,8 +193,8 @@ Mine.prototype.play=function(ev,obj){
 									2、找四周（如果四周的值不为0，那就显示到这里，不需要再找了）
 				 */
 
-				obj.innerHTML='';	//如果数字为0的话，就不显示 
-                
+				obj.innerHTML='';	//如果数字为0的话，就不显示
+
 				function getAllZero(square){
 					var around=This.getAround(square);	//找到了周围的n个格子
 
@@ -237,7 +240,7 @@ Mine.prototype.play=function(ev,obj){
 		}
 		obj.className=obj.className=='flag'?'':'flag';	//切换CLASS
 		!obj.getAttribute('flag') ? obj.setAttribute('flag',true) : obj.removeAttribute('flag');
-        
+
 		if(this.squares[obj.pos[0]][obj.pos[1]].type=='mine'){
 			this.allRight=true;	//用户标的小红旗背后都是雷
 		}else{
@@ -256,18 +259,19 @@ Mine.prototype.play=function(ev,obj){
 			if(this.allRight){
 				//这个条件成立说明用户全部标对了
 				alert('恭喜你，游戏通过');
+				this.removeEvent();
 			}else{
 				alert('游戏失败');
 				this.gameOver();
 			}
 		}
 	}
-	
+
 };
 
 //游戏失败函数
 Mine.prototype.gameOver=function(clickTd){
-	/* 
+	/*
 		1、显示所有的雷
 		2、取消所有格子的点击事件
 		3、给点中的那个雷标上一个红
@@ -278,14 +282,13 @@ Mine.prototype.gameOver=function(clickTd){
 			if(this.squares[i][j].type=='mine'){
 				this.tds[i][j].className='mine';
 			}
-
-			this.tds[i][j].onmousedown=null;
 		}
 	}
 
 	if(clickTd){
 		clickTd.style.backgroundColor='#f00';
 	}
+	this.removeEvent();
 }
 
 
