@@ -18,7 +18,6 @@ Mine.prototype.randomNum=function(){
 		square[i]=i;
 	}
 	square.sort(function(){return 0.5-Math.random()});
-
 	return square.slice(0,this.mineNum);
 }
 Mine.prototype.init=function(){
@@ -32,7 +31,7 @@ Mine.prototype.init=function(){
 			//n++;
 
 			//取一个方块在数组里的数据要使用行与列的形式去取。找方块周围的方块的时候要用坐标的形式去取。行与列的形式跟坐标的形式x,y是刚好相反的
-			if(rn.indexOf(++n)!=-1){
+			if(rn.indexOf(n++)!=-1){
 				//如果这个条件成立，说明现在循环到的这个索引在雷的数组里找到了，那就表示这个索引对应的是个雷
 				this.squares[i][j]={type:'mine',x:j,y:i};
 			}else{
@@ -240,7 +239,6 @@ Mine.prototype.play=function(ev,obj){
 		}
 		obj.className=obj.className=='flag'?'':'flag';	//切换CLASS
 		!obj.getAttribute('flag') ? obj.setAttribute('flag',true) : obj.removeAttribute('flag');
-
 		if(this.squares[obj.pos[0]][obj.pos[1]].type=='mine'){
 			this.allRight=true;	//用户标的小红旗背后都是雷
 		}else{
@@ -253,18 +251,20 @@ Mine.prototype.play=function(ev,obj){
 		}else{
 			this.mineNumDom.innerHTML=++this.surplusMine;
 		}
-
 		if(this.surplusMine==0){
-			//剩余的雷的数量为0，表示用户已经标完小红旗了，这时候要判断游戏是成功还是结束
-			if(this.allRight){
-				//这个条件成立说明用户全部标对了
-				alert('恭喜你，游戏通过');
-				this.removeEvent();
-			}else{
-				alert('游戏失败');
-				this.gameOver();
-			}
+        setTimeout(()=>{
+				//剩余的雷的数量为0，表示用户已经标完小红旗了，这时候要判断游戏是成功还是结束
+				if(this.allRight){
+					//这个条件成立说明用户全部标对了
+					alert('恭喜你，游戏通过');
+					this.removeEvent();
+				}else{
+					alert('游戏失败');
+					this.gameOver();
+				}
+		})
 		}
+
 	}
 
 };
