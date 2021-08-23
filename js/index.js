@@ -11,7 +11,7 @@ function Mine(tr,td,mineNum){
 	this.parent=document.querySelector('.gameBox');
 }
 
-//生成n个不重复的数字
+//生成n个不重复的数字 === 雷的位置
 Mine.prototype.randomNum=function(){
 	var square=new Array(this.tr*this.td);	//生成一个空数组，但是有长度，长度为格子的总数
 	for(var i=0;i<square.length;i++){
@@ -35,6 +35,7 @@ Mine.prototype.init=function(){
 				//如果这个条件成立，说明现在循环到的这个索引在雷的数组里找到了，那就表示这个索引对应的是个雷
 				this.squares[i][j]={type:'mine',x:j,y:i};
 			}else{
+				//value 一开始都是0；
 				this.squares[i][j]={type:'number',x:j,y:i,value:0};
 			}
 		}
@@ -58,6 +59,7 @@ Mine.prototype.init=function(){
 	this.updateNum();
 	this.createDom();
 
+	// 使右键菜单失效
 	this.parent.oncontextmenu=function(){
 		return false;
 	}
@@ -71,9 +73,11 @@ Mine.prototype.init=function(){
 Mine.prototype.createDom=function(){
 	var This=this;
 	var table=document.createElement('table');
+	table.type = 'wrapper';
 
 	for(var i=0;i<this.tr;i++){	//行
 		var domTr=document.createElement('tr');
+		domTr.type = 'wrapper';
 		this.tds[i]=[];
 
 		for(var j=0;j<this.td;j++){	//列
@@ -82,6 +86,11 @@ Mine.prototype.createDom=function(){
 
 			domTd.pos=[i,j];	//把格子对应的行与列存到格子身上，为了下面通过这个值去数组里取到对应的数据
 			table.onmousedown=function(e){
+				//防止点击到非td元素
+				if(e.target.type && e.target.type === 'wrapper'){
+					return;
+				};
+
 				This.play(e,e.target);	//This指的实例对象，this指的点击的那个td
 			};
 
@@ -237,6 +246,7 @@ Mine.prototype.play=function(ev,obj){
 		if(obj.className && obj.className!='flag'){
 			return;
 		}
+
 		obj.className=obj.className=='flag'?'':'flag';	//切换CLASS
 		!obj.getAttribute('flag') ? obj.setAttribute('flag',true) : obj.removeAttribute('flag');
 		if(this.squares[obj.pos[0]][obj.pos[1]].type=='mine'){
