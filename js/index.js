@@ -6,7 +6,7 @@ function Mine(tr,td,mineNum){
 	this.squares=[];	//存储所有方块的信息，它是一个二维数组，按行与列的顺序排放。存取都使用行列的形式
 	this.tds=[];		//存储所有的单元格的DOM(二维数组)
 	this.surplusMine=mineNum;	//剩余雷的数量
-	this.allRight=false;	//右击标的小红旗是否全是雷。用来判断用户是否游戏成功
+	this.allRight=0;	//右击标的小红旗是否全是雷。用来判断用户是否游戏成功
 
 	this.parent=document.querySelector('.gameBox');
 }
@@ -68,6 +68,8 @@ Mine.prototype.init=function(){
 	this.mineNumDom=document.querySelector('.mineNum');
 	this.mineNumDom.innerHTML=this.mineNum;
 	this.surplusMine=this.mineNum;
+    //标记正确数
+	this.allRight=0;
 };
 //创建表格
 Mine.prototype.createDom=function(){
@@ -126,8 +128,8 @@ Mine.prototype.getAround=function(square){
 	 */
 
 	 //通过坐标去循环九宫格
-	for(var i=x-1;i<=x+1;i++){
-		for(var j=y-1;j<=y+1;j++){
+	for(var i=x-1;i<=x+1;i++){ //列
+		for(var j=y-1;j<=y+1;j++){ // 行
 			if(
 				i<0 ||	//格子超出了左边的范围
 				j<0	||	//格子超出了上边的范围
@@ -247,14 +249,15 @@ Mine.prototype.play=function(ev,obj){
 			return;
 		}
 
+		console.log(this.squares[obj.pos[0]][obj.pos[1]].type);
+		if(this.squares[obj.pos[0]][obj.pos[1]].type=='mine' && obj.className=='' ){
+			this.allRight++;	//用户标的小红旗背后都是雷
+		}else if (this.squares[obj.pos[0]][obj.pos[1]].type=='mine' && obj.className=='flag'){
+			this.allRight--;
+		}
+		console.log(this.squares[obj.pos[0]][obj.pos[1]].type, this.allRight);
 		obj.className=obj.className=='flag'?'':'flag';	//切换CLASS
 		!obj.getAttribute('flag') ? obj.setAttribute('flag',true) : obj.removeAttribute('flag');
-		if(this.squares[obj.pos[0]][obj.pos[1]].type=='mine'){
-			this.allRight=true;	//用户标的小红旗背后都是雷
-		}else{
-			this.allRight=false;
-		}
-
 
 		if(obj.className=='flag'){
 			this.mineNumDom.innerHTML=--this.surplusMine;
@@ -264,7 +267,7 @@ Mine.prototype.play=function(ev,obj){
 		if(this.surplusMine==0){
         setTimeout(()=>{
 				//剩余的雷的数量为0，表示用户已经标完小红旗了，这时候要判断游戏是成功还是结束
-				if(this.allRight){
+				if(this.allRight === this.mineNum){
 					//这个条件成立说明用户全部标对了
 					alert('恭喜你，游戏通过');
 					this.removeEvent();
